@@ -117,6 +117,7 @@ SS_BPMDelay {
   }
 
   setTempo { | tempo = 120 |
-    var delayTime = this.calculateDelay
+    var delayTime = this.calculateDelay;
+  }
 
 }
