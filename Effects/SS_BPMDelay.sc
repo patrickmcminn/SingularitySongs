@@ -9,6 +9,7 @@ SS_BPMDelay {
   var server;
   var <inBus, delayBus, faderBus;
   var inputSynth, delaySynth, faderSynth;
+  var delayTempo, delayDivision;
 
   *new { | outBus = 0, amp = 1, balance = 0, tempo = 120, division = 4, group = nil, addAction = \addToTail |
     ^super.new.prInit(outBus, amp, balance, tempo, division, group, addAction);
@@ -91,6 +92,8 @@ SS_BPMDelay {
     var tempoCalc = 60/tempo;
     var divisionAdjust = tempoCalc * 4;
     var delayTime = divisionAdjust / division;
+    delayTempo = tempo;
+    delayDivision = division;
     ^delayTime;
   }
 
@@ -117,7 +120,13 @@ SS_BPMDelay {
   }
 
   setTempo { | tempo = 120 |
-    var delayTime = this.calculateDelay;
+    var delayTime = this.calculateDelay(tempo, delayDivision);
+    delaySynth.set(\delayTime, delayTime);
+  }
+
+  setDivision { | division = 4 |
+    var delayTime = this.calculateDelay(delayTempo, division);
+    delaySynth.set(\delayTime, delayTime);
   }
 
 }

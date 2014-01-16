@@ -14,7 +14,7 @@ SS_Mixer {
 
   var <reverbLong, <reverbShort, <bpmDelay, <looper;
 
-  var chanSynthArray;
+  var <chanSynthArray;
   var <masterSynthArray;
 
 
@@ -70,14 +70,17 @@ SS_Mixer {
       Out.ar(outBus, sig);
     }).add;
 
-    SynthDef(\IM_Mixer_MasterStrip, { |inBus = 1, outBus = 0, amp = 1, mute = 1,
-      preOrPost = 1, balance = 0|
+    SynthDef(\IM_Mixer_MasterStrip, {
+      |inBus = 1, outBus = 0, amp = 1, mute = 1, preOrPost = 1, balance = 0|
 
-      var input, sig, lagTime = 0.05;
+      var input, sig, meterOutLeft, meterOutRight, lagTime = 0.05;
 
       amp = amp.lag(lagTime);
       input = In.ar(inBus, 2);
       sig = Balance2.ar(input[0], input[1], balance, amp * mute);
+
+      meterOutLeft = SendPeakRMS.kr(sig[0], 20, 0.1, '/masterAmpLeft');
+      meterOutRight = SendPeakRMS.kr(sig[1], 20, 0.1, '/masterAmpRight');
 
       Out.ar(outBus, sig);
     }).add;
@@ -124,8 +127,8 @@ SS_Mixer {
 
       // Add master send effects
       // (Use addToTail, so they always come after the channel strips, but before the master)
-      reverbLong = IM_Reverb(masterBusArray[0], bufName: reverbBufLong, group: group, addAction: \addToHead);
-      reverbShort = IM_Reverb(masterBusArray[0], bufName: reverbBufShort, group: group, addAction: \addToHead);
+      reverbLong = SS_Reverb(masterBusArray[0], bufName: reverbBufLong, group: group, addAction: \addToHead);
+      reverbShort = SS_Reverb(masterBusArray[0], bufName: reverbBufShort, group: group, addAction: \addToHead);
       bpmDelay = SS_BPMDelay.new(masterBusArray[0], 1, 0, 120, 4, group, \addToHead);
       looper = nil;
 
@@ -245,6 +248,10 @@ SS_Mixer {
 
   setVol { |chanNum = 0, db = 0, type = \chan|
     this.prGetSynth(chanNum, type).set(\amp, db.dbamp);
+  }
+
+  setMasterAmp { | chanNum = 0, amp = 0 |
+    this.setAmp(chanNum, amp, \master)
   }
 
   setMasterVol { |chanNum = 0, db = 0|

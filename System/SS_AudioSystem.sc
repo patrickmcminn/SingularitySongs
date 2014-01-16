@@ -15,6 +15,7 @@ SS_AudioSystem {
   var <hardwareOut, <feedbackUnit, <mixer, <postRecorder;
   var <inGroup, <procGroup; // procGroup is derived relative to the mixer/other objects
   var <irLibrary;
+  var violinI, violinII, viola, cello;
 
   // var controlGroup, controlBank;
 
@@ -40,14 +41,9 @@ SS_AudioSystem {
       inGroup = Group.head(server);
       procGroup = Group.after(inGroup);
 
-      // BUG, why doesn't the server wait long enough for the busses to be made?
-      // server.sync;
-
-      // BUG: bus has not been allocated in audio interface by the time this code is hit
-      // audioInterface.outBus(0).postln;
       1.wait;
 
-      irLibrary = IM_IRLibrary.new("~/Library/Application Support/SuperCollider/Extensions/Singularity Songs/System/Reverb/Impulse Responses");
+      irLibrary = SS_IRLibrary.new("~/Library/Application Support/SuperCollider/Extensions/Singularity Songs/System/Reverb/Impulse Responses");
 
       fork {
         loop{
@@ -65,6 +61,13 @@ SS_AudioSystem {
 
       mixer = SS_Mixer(numChans, numMasterChans, [hardwareOut.inBus(0), hardwareOut.inBus(1)],
         irDict['3.4Cathedral'], irDict['2.0MediumHall'] ,procGroup, \addAfter);
+
+      server.sync;
+      1.0.wait;
+      violinI = IM_HardwareIn(0, mixer.chanMono(0), inGroup);
+      violinII = IM_HardwareIn(1, mixer.chanMono(1), inGroup);
+      viola = IM_HardwareIn(2, mixer.chanMono(2), inGroup);
+      cello = IM_HardwareIn(3, mixer.chanMono(3), inGroup);
     };
   }
 

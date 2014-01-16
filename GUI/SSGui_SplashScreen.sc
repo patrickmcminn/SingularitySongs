@@ -1,4 +1,8 @@
-
+/*
+Monday, January 13th 2013
+SSGui_SplashScreen.sc
+prm
+*/
 
 SSGui_SplashScreen {
 
@@ -9,16 +13,18 @@ SSGui_SplashScreen {
   }
 
   prInit {
+    GUI.qt;
     server = Server.default;
-    //window = .new("", Rect(left: 400, top: 400, width: 300, height: 250), true, false, server);
-    window = VLayoutView.new(bounds: Rect(400, 400, 300, 250));
+    window = Window.new("", Rect(525, 400, 150, 125), true, false, server);
     this.prMakeText;
     this.prAnimateText;
+    window.layout = VLayout([text, align: \center]);
     window.front;
+    window.alwaysOnTop = true;
   }
 
   prMakeText {
-    text = StaticText.new(window, Rect(100, 100));
+    text = StaticText.new();
   }
 
   prAnimateText {
